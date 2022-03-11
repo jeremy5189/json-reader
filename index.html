@@ -51,8 +51,8 @@
                             <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
                     </ul>
-                    <form class="d-flex">
-                        <input class="form-control me-2" type="search" placeholder="UUID" aria-label="Search">
+                    <form class="d-flex" action="" method="GET">
+                        <input class="form-control me-2" type="text" name="uuid" placeholder="UUID" aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Goto</button>
                     </form>
                 </div>
@@ -121,15 +121,25 @@
             uuid = '';
             if (params.uuid) {
                 uuid = params.uuid;
-                $.getJSON(`json/${uuid}.json`, function(resp) {
-                    if (resp && resp.response) {
-                        j = resp.response.reportBase;
-                        console.log(j);
-                        title = `${court_map[`${j.courtCode}${j.caseType}`]} ${j.caseNum}`;
-                        $('#title').html(title);
-                        $('#issue').html(j.issue);
-                        $('#content').text(cleanHTML(j.content));
-                        $('#uuid').html(`Case UUID: ${uuid}`)
+                $.ajax({
+                    url: `json/${uuid}.json`,
+                    dataType: 'json',
+                    success: function(resp) {
+                        if (resp && resp.response) {
+                            j = resp.response.reportBase;
+                            console.log(j);
+                            title = `${court_map[`${j.courtCode}${j.caseType}`]} ${j.caseNum}`;
+                            $('#title').html(title);
+                            $('#issue').html(j.issue);
+                            $('#content').text(cleanHTML(j.content));
+                            $('#uuid').html(`Case UUID: ${uuid}`)
+                        }
+                    },
+                    error: function(err) {
+                        console.log(err);
+                        if (err.status === 404) {
+                            $('#title').html('Not Found');
+                        }
                     }
                 });
             } else {
