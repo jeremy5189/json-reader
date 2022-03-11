@@ -24,7 +24,7 @@
                 font-size: 3.5rem;
             }
         }
-        pre {
+        #content {
             font-size: 14px;
         }
     </style>
@@ -64,19 +64,50 @@
         <div class="container">
             <h2 class="mt-5" id="title">Loading...</h2>
             <h3 id="issue"></h3>
-            <pre id="content"></pre>
+            <div id="content"></div>
         </div>
     </main>
     <footer class="footer mt-auto py-3 bg-light">
-        <div class="container">
+        <div class="container" id="footer">
             <span class="text-muted" id="uuid"></span>
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.bundle.min.js" integrity="sha512-PqRelaJGXVuQ81N6wjUrRQelCDR7z8RvKGiR9SbSxKHPIt15eJDmIVv9EJgwq0XvgylszsjzvQ0+VyI2WtIshQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        function cleanHTML(str) {
-            return str.replace(/<\/?[^>]+(>|$)/g, "");
+        keyword = {
+            'danger': [
+                '死亡', '已死亡', '過世', '逝世',
+                '移送', '本件移送', '補正', '抗告',
+                '程序監理人', '誤寫',
+            ],
+            'success': [
+                '合意', '撤銷', '辭任',
+                '年邁', '失智', '報酬', '不適任', '健康',
+            ],
+            'info': [
+                '1106',
+            ],
+            'primary': [],
+        };
+
+        function procHTML(str) {
+            // clean tag
+            str = str.replace(/<\/?[^>]+(>|$)/g, "");
+            str = str.replace(/\n/g, "<br>");
+            // mark
+            for (let key in keyword) {
+                keyword[key].forEach(function(w) {
+                    re = new RegExp(`(${w})`, "g");
+                    str = str.replace(re, `<span class=\"text-${key}\">$1</span>`);
+                })
+            }
+            return str;
+        }
+        function showKeyword() {
+            for (let key in keyword) {
+                $('#footer').append(`<br/><span class=\"text-${key}\">${keyword[key].join(', ')}</span>`);
+            }
         }
         function getSearchParameters() {
             var prmstr = window.location.search.substr(1);
@@ -117,6 +148,7 @@
         };
 
         $(function() {
+            showKeyword();
             params = getSearchParameters();
             uuid = '';
             if (params.uuid) {
@@ -131,8 +163,8 @@
                             title = `${court_map[`${j.courtCode}${j.caseType}`]} ${j.caseNum}`;
                             $('#title').html(title);
                             $('#issue').html(j.issue);
-                            $('#content').text(cleanHTML(j.content));
-                            $('#uuid').html(`Case UUID: ${uuid}`)
+                            $('#content').html(procHTML(j.content));
+                            $('#uuid').html(`${uuid}`)
                         }
                     },
                     error: function(err) {
