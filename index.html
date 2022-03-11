@@ -162,6 +162,7 @@
                             console.log(j);
                             title = `${court_map[`${j.courtCode}${j.caseType}`]} ${j.caseNum}`;
                             $('#title').html(title);
+                            $(document).prop('title', title);
                             $('#issue').html(j.issue);
                             $('#content').html(procHTML(j.content));
                             $('#uuid').html(`${uuid}`)
