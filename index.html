@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.88.1">
-    <title>Sticky Footer Navbar Template · Bootstrap v5.1</title>
+    <title>JSON Reader</title>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" integrity="sha512-F7WyTLiiiPqvu2pGumDR15med0MDkUIo5VTVyyfECR5DZmCnDhti9q5VID02ItWjq6fvDfMaBaDl2J3WdL1uxA==" crossorigin="anonymous" referrerpolicy="no-referrer"
     />
@@ -19,11 +19,13 @@
             -moz-user-select: none;
             user-select: none;
         }
-        
         @media (min-width: 768px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
+        }
+        pre {
+            font-size: 14px;
         }
     </style>
     <!-- Custom styles for this template -->
@@ -39,7 +41,7 @@
         <!-- Fixed navbar -->
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Fixed navbar</a>
+                <a class="navbar-brand" href="#">JSON Reader</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
                </button>
@@ -48,16 +50,10 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Link</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link disabled">Disabled</a>
-                        </li>
                     </ul>
                     <form class="d-flex">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
+                        <input class="form-control me-2" type="search" placeholder="UUID" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Goto</button>
                     </form>
                 </div>
             </div>
@@ -66,17 +62,81 @@
     <!-- Begin page content -->
     <main class="flex-shrink-0">
         <div class="container">
-            <h1 class="mt-5">Sticky footer with fixed navbar</h1>
-            <p class="lead">Pin a footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added with <code class="small">padding-top: 60px;</code> on the <code class="small">main &gt; .container</code>.</p>
-            <p>Back to <a href="/docs/5.1/examples/sticky-footer/">the default sticky footer</a> minus the navbar.</p>
+            <h2 class="mt-5" id="title">Loading...</h2>
+            <h3 id="issue"></h3>
+            <pre id="content"></pre>
         </div>
     </main>
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
-            <span class="text-muted">Place sticky footer content here.</span>
+            <span class="text-muted" id="uuid"></span>
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.bundle.min.js" integrity="sha512-PqRelaJGXVuQ81N6wjUrRQelCDR7z8RvKGiR9SbSxKHPIt15eJDmIVv9EJgwq0XvgylszsjzvQ0+VyI2WtIshQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        function cleanHTML(str) {
+            return str.replace(/<\/?[^>]+(>|$)/g, "");
+        }
+        function getSearchParameters() {
+            var prmstr = window.location.search.substr(1);
+            return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+        }
+
+        function transformToAssocArray( prmstr ) {
+            var params = {};
+            var prmarr = prmstr.split("&");
+            for ( var i = 0; i < prmarr.length; i++) {
+                var tmparr = prmarr[i].split("=");
+                params[tmparr[0]] = tmparr[1];
+            }
+            return params;
+        }
+        court_map = {
+            'KLDV': '基隆地院',
+            'KSDV': '高雄地院',
+            'PCDV': '板橋地院',
+            'TPDV': '台北地院',
+            'CYDV': '嘉義地院',
+            'SLDV': '士林地院',
+            'HLDV': '花蓮地院',
+            'TCDV': '台中地院',
+            'TCHV': '台中高院',
+            'CHDV': '彰化地院',
+            'ILDV': '宜蘭地院',
+            'SCDV': '新竹地院',
+            'TNDV': '台南地院',
+            'PTDV': '屏東地院',
+            'MLDV': '苗栗地院',
+            'TNHV': '台南高院',
+            'NTDV': '南投地院',
+            'TYDV': '桃園地院',
+            'TPSV': '最高法院',
+            'TTDV': '台東地院',
+            'PHDV': '澎湖地院',
+        };
+
+        $(function() {
+            params = getSearchParameters();
+            uuid = '';
+            if (params.uuid) {
+                uuid = params.uuid;
+                $.getJSON(`json/${uuid}.json`, function(resp) {
+                    if (resp && resp.response) {
+                        j = resp.response.reportBase;
+                        console.log(j);
+                        title = `${court_map[`${j.courtCode}${j.caseType}`]} ${j.caseNum}`;
+                        $('#title').html(title);
+                        $('#issue').html(j.issue);
+                        $('#content').text(cleanHTML(j.content));
+                        $('#uuid').html(`Case UUID: ${uuid}`)
+                    }
+                });
+            } else {
+                $('#title').html('No UUID given in GET');
+            }
+        })
+    </script>
 </body>
 
 </html>
