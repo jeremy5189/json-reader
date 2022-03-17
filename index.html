@@ -65,14 +65,22 @@
     <!-- Begin page content -->
     <main class="flex-shrink-0">
         <div class="container">
-            <h2 class="mt-5" id="title">Loading...</h2>
-            <h3 id="issue"></h3>
-            <div id="content"></div>
+            <div class="row">
+            <div class="col-md-6">
+                <h2 class="mt-5" id="title">Loading...</h2>
+                <h3 id="issue"></h3>
+                <div id="content"></div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="uuid mt-5" style="margin-left: 32px;"></h3>
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfyscDT_7Xl072uy1A5Dypy-DdEXg2BYWYo0Tr9XwGUOi1eSw/viewform?usp=pp_url" id="iframe" width="640" height="2323" frameborder="0" marginheight="0" marginwidth="0">載入中…</iframe>
+            </div>
+            </div>
         </div>
     </main>
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container" id="footer">
-            <span class="text-muted" id="uuid"></span>
+            <span class="text-muted uuid"></span>
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -138,7 +146,9 @@
                         $(document).prop('title', title);
                         $('#issue').html(j.issue);
                         $('#content').html(procHTML(j.content));
-                        $('#uuid').html(`${uuid}`)
+                        $('.uuid').html(`${uuid}`);
+                        //$('#iframe').attr('src', `https://docs.google.com/forms/d/e/1FAIpQLSfyscDT_7Xl072uy1A5Dypy-DdEXg2BYWYo0Tr9XwGUOi1eSw/viewform?usp=pp_url&entry.820306657=${uuid}`)
+                        //document.getElementById('#iframe').contentDocument.location.reload(true);
                     }
                 },
                 error: function(err) {
